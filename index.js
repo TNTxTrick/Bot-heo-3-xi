@@ -50,7 +50,7 @@ app.get('/api/proxy', async (req, res) => {
 
         // Tạo phản hồi dưới dạng JSON
         const message = 'Code by TNT';
-        const link = `https://api-scanproxy/files/${fileName}`;
+        const link = `https://api-scanproxy.onlitegix.com/files/${fileName}`;
 
         // Trả về thông tin dưới dạng JSON
         res.json({ message: message, link: link });
