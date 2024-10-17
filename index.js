@@ -18,46 +18,42 @@ if (!fs.existsSync(filesDir)) {
 
 // Các API proxy cần lấy dữ liệu
 const proxyAPIs = [
-    'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt',
-    'https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt',
-    'https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt', 
     'https://www.proxy-list.download/api/v1/get?type=socks5',
     'https://www.proxy-list.download/api/v1/get?type=socks4',
-    'https://api.proxyscrape.com/?request=displayproxies&proxytype=socks4&country=all'
+    'https://api.proxyscrape.com/?request=displayproxies&proxytype=socks4&country=all', 
+    'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt',
+    'https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt',
+    'https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt'
 ];
 
 // API endpoint để tự động lấy proxy từ các nguồn và trả về nội dung file txt
 app.get('/api/proxy', async (req, res) => {
     try {
-        let allProxies = [];
+        let allData = '';
 
         // Lặp qua từng URL để lấy dữ liệu
         for (let url of proxyAPIs) {
             try {
                 const response = await axios.get(url);
-                const proxies = response.data.split('\n').filter(proxy => proxy); // Chia nhỏ và loại bỏ các dòng trống
-                allProxies = allProxies.concat(proxies); // Gộp tất cả proxy vào mảng
+                allData += response.data + '\n'; // Thêm dữ liệu từ mỗi URL
             } catch (error) {
                 console.log(`Không thể lấy dữ liệu từ ${url}:`, error.message);
             }
         }
-
-        // Chọn một proxy ngẫu nhiên từ danh sách
-        const randomProxy = allProxies[Math.floor(Math.random() * allProxies.length)];
 
         // Tạo tên file ngẫu nhiên
         const fileName = `${crypto.randomBytes(16).toString('hex')}.txt`;
         const filePath = path.join(filesDir, fileName);
 
         // Lưu nội dung vào file txt
-        fs.writeFileSync(filePath, allProxies.join('\n')); // Lưu tất cả proxy vào file
+        fs.writeFileSync(filePath, allData);
 
         // Tạo phản hồi dưới dạng JSON
-        const message = 'File đã được tạo';
-        const link = `https://a8590416-ddb6-4a67-8f2c-83f61098ee23-00-2sshc47cxz3a9.kirk.replit.dev/files/${fileName}`;
+        const message = 'Code by TNT';
+        const link = `https://api-scanproxy/files/${fileName}`;
 
-        // Trả về thông tin và proxy ngẫu nhiên dưới dạng JSON
-        res.json({ message: message, link: link, randomProxy: randomProxy });
+        // Trả về thông tin dưới dạng JSON
+        res.json({ message: message, link: link });
     } catch (error) {
         res.status(500).json({ error: 'Lỗi khi xử lý yêu cầu' });
     }
